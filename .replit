@@ -2,3 +2,24 @@ modules = ["web"]
 
 [nix]
 channel = "stable-24_05"
+
+[workflows]
+runButton = "Start Dev Server"
+
+[[workflows.workflow]]
+name = "Build Project"
+author = 43931040
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node build-agent.js build"
+
+[[workflows.workflow]]
+name = "Start Dev Server"
+author = 43931040
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node build-agent.js serve"
