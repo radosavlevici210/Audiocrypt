@@ -8,11 +8,6 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=os.getcwd(), **kwargs)
     
-    def end_headers(self):
-        self.send_header('Cross-Origin-Embedder-Policy', 'require-corp')
-        self.send_header('Cross-Origin-Opener-Policy', 'same-origin')
-        super().end_headers()
-    
     def guess_type(self, path):
         mimetype, encoding = mimetypes.guess_type(path)
         if path.endswith('.mp3'):
