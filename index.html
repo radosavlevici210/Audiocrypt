@@ -135,6 +135,7 @@
     <div class="nav-links">
       <a href="/" onclick="navigateHome(event)">🏠 Home</a>
       <a href="/app" onclick="navigateApp(event)">🎵 App</a>
+      <a href="/dashboard" onclick="navigateDashboard(event)">📊 Dashboard</a>
       <a href="/ADS_POLICY.txt" onclick="openDocument(event, 'ADS_POLICY.txt')">📋 Policy</a>
       <a href="/COPYRIGHT.txt" onclick="openDocument(event, 'COPYRIGHT.txt')">📄 Copyright</a>
     </div>
@@ -186,6 +187,12 @@
       console.log('%c🎵 Navigation: App', 'color: #feca57;');
       // Already on app page
       alert('You are already on the app page!');
+    }
+
+    function navigateDashboard(event) {
+      event.preventDefault();
+      console.log('%c📊 Navigation: Dashboard', 'color: #feca57;');
+      window.location.href = '/dashboard';
     }
 
     function openDocument(event, filename) {
