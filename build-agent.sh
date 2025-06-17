@@ -170,11 +170,6 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=os.getcwd(), **kwargs)
     
-    def end_headers(self):
-        self.send_header('Cross-Origin-Embedder-Policy', 'require-corp')
-        self.send_header('Cross-Origin-Opener-Policy', 'same-origin')
-        super().end_headers()
-    
     def guess_type(self, path):
         mimetype, encoding = mimetypes.guess_type(path)
         if path.endswith('.mp3'):
@@ -226,28 +221,20 @@ serve() {
         echo "🐍 Using Python server"
         cd dist
         python -m http.server 5000 --bind 0.0.0.0
-    elif command -v busybox >/dev/null 2>&1; then
-        log "Using busybox httpd server on port 5000"
-        echo "📦 Using Busybox server"
-        cd dist
-        busybox httpd -f -p 5000
     else
-        log "No suitable HTTP server found, using netcat fallback"
-        echo "🔧 Using netcat fallback server"
+        log "Starting basic file listing server"
+        echo "📁 Using basic file server"
         cd dist 2>/dev/null || cd .
         
+        echo "🌐 Server started at http://0.0.0.0:5000"
+        echo "📂 Serving files from: $(pwd)"
+        echo "📄 Available files:"
+        ls -la
+        
+        # Keep the process running with status updates
         while true; do
-            (
-                echo "HTTP/1.1 200 OK"
-                echo "Content-Type: text/html"
-                echo "Access-Control-Allow-Origin: *"
-                echo ""
-                if [ -f "index.html" ]; then
-                    cat index.html
-                else
-                    echo "<h1>Crypto Sound Miner</h1><p>Server running at port 5000</p>"
-                fi
-            ) | nc -l -p 5000 -q 1
+            sleep 30
+            echo "⏰ Server running... $(date)"
         done
     fi
 }
