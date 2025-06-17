@@ -92,9 +92,12 @@ copy_assets() {
     echo "│           COPY ASSETS               │"
     echo "└─────────────────────────────────────┘"
     
-    # Count files to copy
+    # Count files to copy including preview.html
     local files=()
     files+=("index.html")
+    if [ -f "preview.html" ]; then
+        files+=("preview.html")
+    fi
     for file in *.mp3 *.txt *.zip; do
         if [ -f "$file" ]; then
             files+=("$file")
@@ -104,14 +107,14 @@ copy_assets() {
     local total=${#files[@]}
     local current=0
     
-    # Copy HTML files
+    # Copy main HTML file
     current=$((current + 1))
     progress_bar $current $total
     cp index.html dist/
     sleep 0.3
     echo -e "\n📄 Copied index.html"
     
-    # Copy preview page if it exists
+    # Copy preview page
     if [ -f "preview.html" ]; then
         current=$((current + 1))
         progress_bar $current $total
@@ -273,6 +276,7 @@ import http.server
 import socketserver
 import os
 import mimetypes
+import urllib.parse
 
 class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
@@ -283,13 +287,43 @@ class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         if path.endswith('.mp3'):
             return 'audio/mpeg'
         return mimetype
+    
+    def do_GET(self):
+        # Custom routing for better UX
+        parsed_path = urllib.parse.urlparse(self.path)
+        path = parsed_path.path
+        
+        # Serve preview page as default
+        if path == '/':
+            if os.path.exists('preview.html'):
+                self.path = '/preview.html'
+            else:
+                self.path = '/index.html'
+        
+        # Handle app route
+        elif path == '/app' or path == '/app/':
+            self.path = '/index.html'
+        
+        # Default file serving
+        return super().do_GET()
+    
+    def log_message(self, format, *args):
+        # Custom logging with emojis
+        message = format % args
+        if '200' in message:
+            print(f"✅ {message}")
+        elif '404' in message:
+            print(f"❌ {message}")
+        else:
+            print(f"ℹ️  {message}")
 
 PORT = 5000
 Handler = CustomHTTPRequestHandler
 
 print(f"🌐 Starting Crypto Sound Miner server on port {PORT}")
-print(f"🔗 Access your app at: http://0.0.0.0:{PORT}")
-print("🎵 Ready to mine crypto with music!")
+print(f"🔗 Preview at: http://0.0.0.0:{PORT}/")
+print(f"🎵 App at: http://0.0.0.0:{PORT}/app")
+print("🚀 Ready to mine crypto with music!")
 print("-" * 50)
 
 try:
