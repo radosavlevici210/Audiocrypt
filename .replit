@@ -13,27 +13,7 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "mkdir -p dist"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cp index.html dist/"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cp *.mp3 dist/ 2>/dev/null || true"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cp *.txt dist/ 2>/dev/null || true"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cp *.zip dist/ 2>/dev/null || true"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "echo \"Build completed - files copied to dist/\""
+args = "./build-agent.sh build"
 
 [[workflows.workflow]]
 name = "Start Dev Server"
@@ -42,4 +22,4 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python3 -m http.server 5000 --bind 0.0.0.0"
+args = "./build-agent.sh serve"
