@@ -111,6 +111,15 @@ copy_assets() {
     sleep 0.3
     echo -e "\n📄 Copied index.html"
     
+    # Copy preview page if it exists
+    if [ -f "preview.html" ]; then
+        current=$((current + 1))
+        progress_bar $current $total
+        cp preview.html dist/
+        sleep 0.3
+        echo -e "\n🖥️ Copied preview.html"
+    fi
+    
     # Copy static assets
     for file in *.mp3 *.txt *.zip; do
         if [ -f "$file" ]; then
