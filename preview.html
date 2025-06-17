@@ -341,9 +341,123 @@ Music mining, breaking the chain
     </div>
   </div>
 
+  .copyright-watermark {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-size: 12px;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+      cursor: help;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .copyright-watermark:hover {
+      background: rgba(0, 0, 0, 0.9);
+      transform: scale(1.05);
+    }
+    
+    .mouse-trail {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      background: linear-gradient(45deg, #ff6b6b, #feca57);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.8;
+      animation: fadeTrail 0.8s ease-out forwards;
+    }
+    
+    @keyframes fadeTrail {
+      0% { transform: scale(1); opacity: 0.8; }
+      100% { transform: scale(0); opacity: 0; }
+    }
+    
+    body {
+      cursor: crosshair;
+    }
+    
+    .feature-card, .cta-button, .stat-item {
+      cursor: pointer;
+    }
+  </style>
+  
+  <!-- Copyright Watermark -->
+  <div class="copyright-watermark" onclick="showCopyrightInfo()">
+    © <span id="current-year"></span> Ervin Remus Radosavlevici<br>
+    <small id="timestamp"></small>
+  </div>
+
   <script>
+    // Copyright and timestamp setup
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+    document.getElementById('timestamp').textContent = new Date().toLocaleString();
+    
+    // Console initialization
+    console.log('%c🎵 Crypto Sound Miner Preview Loaded', 'color: #ff6b6b; font-size: 24px; font-weight: bold;');
+    console.log('%c© ' + new Date().getFullYear() + ' Ervin Remus Radosavlevici', 'color: #667eea; font-size: 16px; font-weight: bold;');
+    console.log('Preview Page Timestamp:', new Date().toISOString());
+    console.log('Wallet Address: rPDyvBmxcagTfPGSY9efiZ5mm6QoHmbpdq');
+    
+    function showCopyrightInfo() {
+      console.log('%c© Detailed Copyright Information', 'color: #667eea; font-size: 18px; font-weight: bold;');
+      console.log('Author: Ervin Remus Radosavlevici');
+      console.log('Project: Crypto Sound Miner');
+      console.log('Year:', new Date().getFullYear());
+      console.log('Timestamp:', new Date().toISOString());
+      console.log('Wallet: rPDyvBmxcagTfPGSY9efiZ5mm6QoHmbpdq');
+      alert(`© ${new Date().getFullYear()} Ervin Remus Radosavlevici\n\nProject: Crypto Sound Miner\nTimestamp: ${new Date().toLocaleString()}\nWallet: rPDyvBmxcagTfPGSY9efiZ5mm6QoHmbpdq`);
+    }
+    
+    // Mouse trail effect
+    let mouseTrails = [];
+    document.addEventListener('mousemove', function(e) {
+      const trail = document.createElement('div');
+      trail.className = 'mouse-trail';
+      trail.style.left = (e.clientX - 4) + 'px';
+      trail.style.top = (e.clientY - 4) + 'px';
+      document.body.appendChild(trail);
+      
+      mouseTrails.push(trail);
+      
+      setTimeout(() => {
+        if (trail.parentNode) {
+          trail.remove();
+        }
+        mouseTrails = mouseTrails.filter(t => t !== trail);
+      }, 800);
+      
+      if (mouseTrails.length > 15) {
+        const oldTrail = mouseTrails.shift();
+        if (oldTrail.parentNode) {
+          oldTrail.remove();
+        }
+      }
+    });
+    
+    // Enhanced click logging
+    document.addEventListener('click', function(e) {
+      console.log(`%c🖱️ Click Event at: (${e.clientX}, ${e.clientY})`, 'color: #4ecdc4; font-weight: bold;');
+      console.log('Target:', e.target.tagName, e.target.className || e.target.textContent?.substring(0, 30));
+      console.log('Timestamp:', new Date().toISOString());
+    });
+    
+    // Right-click copyright reminder
+    document.addEventListener('contextmenu', function(e) {
+      console.log('%c🖱️ Right-click - Copyright Reminder', 'color: #ff6b6b; font-weight: bold;');
+      console.log('© Ervin Remus Radosavlevici -', new Date().toISOString());
+    });
+
     // Add some interactive effects
     document.addEventListener('DOMContentLoaded', function() {
+      console.log('%c🚀 DOM Content Loaded - Initializing interactions', 'color: #feca57;');
+      
       // Animate feature cards on scroll
       const cards = document.querySelectorAll('.feature-card');
       
@@ -357,21 +471,34 @@ Music mining, breaking the chain
           if (entry.isIntersecting) {
             entry.target.style.opacity = '1';
             entry.target.style.transform = 'translateY(0)';
+            console.log('%c👀 Card visible:', 'color: #4ecdc4;', entry.target.querySelector('.feature-title')?.textContent);
           }
         });
       }, observerOptions);
       
-      cards.forEach(card => {
+      cards.forEach((card, index) => {
         card.style.opacity = '0';
         card.style.transform = 'translateY(30px)';
         card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
         observer.observe(card);
+        
+        // Add click logging to cards
+        card.addEventListener('click', function() {
+          const title = this.querySelector('.feature-title')?.textContent;
+          console.log(`%c🃏 Feature card clicked: ${title}`, 'color: #ff6b6b; font-weight: bold;');
+          console.log('© Ervin Remus Radosavlevici -', new Date().toISOString());
+        });
       });
 
-      // Add click animation to CTA buttons
+      // Add click animation to CTA buttons with enhanced logging
       const buttons = document.querySelectorAll('.cta-button');
       buttons.forEach(button => {
         button.addEventListener('click', function(e) {
+          const buttonText = this.textContent.trim();
+          console.log(`%c🔘 CTA Button clicked: ${buttonText}`, 'color: #feca57; font-size: 14px; font-weight: bold;');
+          console.log('URL:', this.href);
+          console.log('© Ervin Remus Radosavlevici -', new Date().toISOString());
+          
           // Create ripple effect
           const ripple = document.createElement('span');
           const rect = this.getBoundingClientRect();
@@ -398,6 +525,28 @@ Music mining, breaking the chain
           }, 600);
         });
       });
+      
+      // Add interactions to stat items
+      const statItems = document.querySelectorAll('.stat-item');
+      statItems.forEach(item => {
+        item.addEventListener('click', function() {
+          const label = this.querySelector('.stat-label')?.textContent;
+          const number = this.querySelector('.stat-number')?.textContent;
+          console.log(`%c📊 Stat clicked: ${label} - ${number}`, 'color: #764ba2; font-weight: bold;');
+        });
+        
+        item.addEventListener('mouseenter', function() {
+          this.style.transform = 'scale(1.05)';
+          this.style.transition = 'transform 0.3s ease';
+        });
+        
+        item.addEventListener('mouseleave', function() {
+          this.style.transform = 'scale(1)';
+        });
+      });
+      
+      console.log('%c✨ All interactions initialized successfully!', 'color: #4caf50; font-size: 14px; font-weight: bold;');
+      console.log('© ' + new Date().getFullYear() + ' Ervin Remus Radosavlevici');
     });
 
     // Add CSS animation for ripple effect

