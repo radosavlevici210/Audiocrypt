@@ -1,0 +1,9 @@
+Non-Disclosure Agreement (NDA)
+Project: Crypto Sound Miner
+Owner: Ervin Remus Radosavlevici
+Email: ervin210@icloud.com
+
+By interacting with this system, you agree not to disclose, copy, or reverse engineer the Crypto Sound Miner system. 
+Violations will be pursued under IP law.
+
+Signed electronically by use.
