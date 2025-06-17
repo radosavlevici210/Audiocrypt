@@ -22,4 +22,4 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "node build-agent.js serve"
+args = "python3 -m http.server 5000 --bind 0.0.0.0"
