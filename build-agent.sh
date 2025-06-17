@@ -15,10 +15,33 @@ progress_bar() {
     local percentage=$((current * 100 / total))
     local completed=$((current * width / total))
     
-    printf "\r["
-    printf "%*s" $completed | tr ' ' '='
-    printf "%*s" $((width - completed)) | tr ' ' '-'
-    printf "] %d%% (%d/%d)" $percentage $current $total
+    # Color codes
+    local green='\033[1;32m'
+    local blue='\033[1;34m'
+    local yellow='\033[1;33m'
+    local reset='\033[0m'
+    
+    # Choose color based on progress
+    local color=$blue
+    if [ $percentage -ge 100 ]; then
+        color=$green
+    elif [ $percentage -ge 50 ]; then
+        color=$yellow
+    fi
+    
+    printf "\r${color}["
+    printf "%*s" $completed | tr ' ' '█'
+    printf "%*s" $((width - completed)) | tr ' ' '░'
+    printf "] %d%% (%d/%d)${reset}" $percentage $current $total
+    
+    # Add spinning animation for active progress
+    if [ $current -lt $total ]; then
+        local spinner=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
+        local spin_index=$((current % ${#spinner[@]}))
+        printf " ${spinner[$spin_index]}"
+    else
+        printf " ✅"
+    fi
 }
 
 check_dependencies() {
@@ -125,36 +148,112 @@ optimize_html() {
 
 validate_build() {
     log "✅ Validating build..."
-    echo "┌─────────────────────────────────────┐"
-    echo "│          BUILD VALIDATION           │"
-    echo "└─────────────────────────────────────┘"
+    echo -e "\033[1;33m┌─────────────────────────────────────┐\033[0m"
+    echo -e "\033[1;33m│          BUILD VALIDATION           │\033[0m"
+    echo -e "\033[1;33m└─────────────────────────────────────┘\033[0m"
     
     if [ ! -f "dist/index.html" ]; then
-        echo "❌ ERROR: Build validation failed: index.html not found"
+        echo -e "\033[1;31m❌ ERROR: Build validation failed: index.html not found\033[0m"
         exit 1
     fi
     
+    # Calculate build statistics
     file_count=$(ls -1 dist/ | wc -l)
-    echo "📊 Build contains $file_count files:"
-    ls -la dist/ | grep -v "^total" | grep -v "^d" | awk '{print "   📄 " $9}'
+    total_size=$(du -sh dist/ | cut -f1)
     
-    echo "✅ Build validation passed"
+    echo -e "\033[1;36m📊 BUILD STATISTICS\033[0m"
+    echo "────────────────────"
+    echo -e "\033[1;32m📂 Total files: $file_count\033[0m"
+    echo -e "\033[1;32m💾 Total size: $total_size\033[0m"
+    echo ""
+    echo -e "\033[1;34m📄 FILE MANIFEST:\033[0m"
+    
+    # Show files with sizes and types
+    ls -la dist/ | grep -v "^total" | grep -v "^d" | while read -r line; do
+        filename=$(echo "$line" | awk '{print $9}')
+        filesize=$(echo "$line" | awk '{print $5}')
+        
+        # Determine file type icon
+        case "$filename" in
+            *.html) icon="🌐" ;;
+            *.mp3) icon="🎵" ;;
+            *.txt) icon="📄" ;;
+            *.zip) icon="📦" ;;
+            *.py) icon="🐍" ;;
+            *) icon="📄" ;;
+        esac
+        
+        # Convert bytes to human readable
+        if [ "$filesize" -gt 1048576 ]; then
+            size_human="$((filesize / 1048576))MB"
+        elif [ "$filesize" -gt 1024 ]; then
+            size_human="$((filesize / 1024))KB"
+        else
+            size_human="${filesize}B"
+        fi
+        
+        echo -e "   $icon \033[1;37m$filename\033[0m \033[1;90m($size_human)\033[0m"
+    done
+    
+    echo ""
+    echo -e "\033[1;32m✅ Build validation passed\033[0m"
     log "Build validation passed"
     echo ""
 }
 
 build() {
-    echo "🚀 STARTING BUILD PROCESS"
+    clear
+    echo -e "\033[1;36m"
+    cat << 'EOF'
+   ┌─────────────────────────────────────────────────────┐
+   │                                                     │
+   │     🎵 CRYPTO SOUND MINER BUILD AGENT 🎵          │
+   │                                                     │
+   │          ♪♫♪ Building Your Music Miner ♪♫♪         │
+   │                                                     │
+   └─────────────────────────────────────────────────────┘
+EOF
+    echo -e "\033[0m"
+    
+    echo -e "\033[1;33m🚀 STARTING BUILD PROCESS\033[0m"
     echo "════════════════════════════════════════════════════════════"
     
-    check_dependencies
-    clean_build
-    copy_assets
-    optimize_html
-    validate_build
+    # Build steps with visual progress
+    local steps=("Dependencies" "Clean" "Assets" "Optimize" "Validate")
+    local total_steps=${#steps[@]}
     
-    echo "🎉 BUILD COMPLETED SUCCESSFULLY!"
-    echo "📁 Output directory: dist/"
+    for i in "${!steps[@]}"; do
+        local step_num=$((i + 1))
+        echo -e "\n\033[1;34m[$step_num/$total_steps] ${steps[$i]} Phase\033[0m"
+        echo "────────────────────────────────"
+        
+        case $step_num in
+            1) check_dependencies ;;
+            2) clean_build ;;
+            3) copy_assets ;;
+            4) optimize_html ;;
+            5) validate_build ;;
+        esac
+        
+        # Visual completion indicator
+        echo -e "\033[1;32m✓ ${steps[$i]} Complete!\033[0m"
+        sleep 0.5
+    done
+    
+    echo -e "\n\033[1;32m"
+    cat << 'EOF'
+   ┌─────────────────────────────────────────────────────┐
+   │                                                     │
+   │               🎉 BUILD SUCCESS! 🎉                 │
+   │                                                     │
+   │        Your Crypto Sound Miner is Ready! 🎵        │
+   │                                                     │
+   └─────────────────────────────────────────────────────┘
+EOF
+    echo -e "\033[0m"
+    
+    echo -e "\033[1;36m📁 Output directory: dist/\033[0m"
+    echo -e "\033[1;35m🎵 Ready to mine crypto with music!\033[0m"
     echo "════════════════════════════════════════════════════════════"
 }
 
@@ -195,10 +294,24 @@ EOF
 }
 
 serve() {
+    clear
     log "🌐 Starting real HTTP server..."
-    echo "┌─────────────────────────────────────┐"
-    echo "│           STARTING SERVER           │"
-    echo "└─────────────────────────────────────┘"
+    
+    echo -e "\033[1;35m"
+    cat << 'EOF'
+   ┌─────────────────────────────────────────────────────┐
+   │                                                     │
+   │        🌐 CRYPTO SOUND MINER SERVER 🌐            │
+   │                                                     │
+   │           ♪♫♪ Ready to Rock & Mine! ♪♫♪            │
+   │                                                     │
+   └─────────────────────────────────────────────────────┘
+EOF
+    echo -e "\033[0m"
+    
+    echo -e "\033[1;36m┌─────────────────────────────────────┐\033[0m"
+    echo -e "\033[1;36m│           STARTING SERVER           │\033[0m"
+    echo -e "\033[1;36m└─────────────────────────────────────┘\033[0m"
     
     # Build first if dist doesn't exist
     if [ ! -d "dist" ]; then
