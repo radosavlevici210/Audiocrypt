@@ -46,9 +46,9 @@ progress_bar() {
 
 check_dependencies() {
     log "🔍 Checking project dependencies..."
-    echo "┌─────────────────────────────────────┐"
-    echo "│         DEPENDENCY CHECK            │"
-    echo "└─────────────────────────────────────┘"
+    echo "╔═══════════════════════════════════════╗"
+    echo "║         DEPENDENCY CHECK              ║"
+    echo "╚═══════════════════════════════════════╝"
     
     local files=("index.html")
     local total=${#files[@]}
@@ -71,9 +71,9 @@ check_dependencies() {
 
 clean_build() {
     log "🧹 Cleaning previous build..."
-    echo "┌─────────────────────────────────────┐"
-    echo "│           CLEAN BUILD               │"
-    echo "└─────────────────────────────────────┘"
+    echo "╔═══════════════════════════════════════╗"
+    echo "║           CLEAN BUILD                 ║"
+    echo "╚═══════════════════════════════════════╝"
     
     if [ -d "dist" ]; then
         rm -rf dist
@@ -88,9 +88,9 @@ clean_build() {
 
 copy_assets() {
     log "📋 Copying assets..."
-    echo "┌─────────────────────────────────────┐"
-    echo "│           COPY ASSETS               │"
-    echo "└─────────────────────────────────────┘"
+    echo "╔═══════════════════════════════════════╗"
+    echo "║           COPY ASSETS                 ║"
+    echo "╚═══════════════════════════════════════╝"
     
     # Count files to copy including preview.html
     local files=()
@@ -139,9 +139,9 @@ copy_assets() {
 
 optimize_html() {
     log "⚡ Optimizing HTML..."
-    echo "┌─────────────────────────────────────┐"
-    echo "│          HTML OPTIMIZATION          │"
-    echo "└─────────────────────────────────────┘"
+    echo "╔═══════════════════════════════════════╗"
+    echo "║          HTML OPTIMIZATION            ║"
+    echo "╚═══════════════════════════════════════╝"
     
     if [ -f "dist/index.html" ]; then
         # Add meta tags for optimization
@@ -160,9 +160,9 @@ optimize_html() {
 
 validate_build() {
     log "✅ Validating build..."
-    echo -e "\033[1;33m┌─────────────────────────────────────┐\033[0m"
-    echo -e "\033[1;33m│          BUILD VALIDATION           │\033[0m"
-    echo -e "\033[1;33m└─────────────────────────────────────┘\033[0m"
+    echo -e "\033[1;33m╔═══════════════════════════════════════╗\033[0m"
+    echo -e "\033[1;33m║          BUILD VALIDATION             ║\033[0m"
+    echo -e "\033[1;33m╚═══════════════════════════════════════╝\033[0m"
     
     if [ ! -f "dist/index.html" ]; then
         echo -e "\033[1;31m❌ ERROR: Build validation failed: index.html not found\033[0m"
@@ -216,15 +216,13 @@ validate_build() {
 build() {
     clear
     echo -e "\033[1;36m"
-    cat << 'EOF'
-   ┌─────────────────────────────────────────────────────┐
-   │                                                     │
-   │     🎵 CRYPTO SOUND MINER BUILD AGENT 🎵          │
-   │                                                     │
-   │          ♪♫♪ Building Your Music Miner ♪♫♪         │
-   │                                                     │
-   └─────────────────────────────────────────────────────┘
-EOF
+    echo "╔══════════════════════════════════════════════════════╗"
+    echo "║                                                      ║"
+    echo "║    🎵 CRYPTO SOUND MINER BUILD AGENT 🎵            ║"
+    echo "║                                                      ║"
+    echo "║         ♪♫♪ Building Your Music Miner ♪♫♪          ║"
+    echo "║                                                      ║"
+    echo "╚══════════════════════════════════════════════════════╝"
     echo -e "\033[0m"
     
     echo -e "\033[1;33m🚀 STARTING BUILD PROCESS\033[0m"
@@ -253,15 +251,13 @@ EOF
     done
     
     echo -e "\n\033[1;32m"
-    cat << 'EOF'
-   ┌─────────────────────────────────────────────────────┐
-   │                                                     │
-   │               🎉 BUILD SUCCESS! 🎉                 │
-   │                                                     │
-   │        Your Crypto Sound Miner is Ready! 🎵        │
-   │                                                     │
-   └─────────────────────────────────────────────────────┘
-EOF
+    echo "╔══════════════════════════════════════════════════════╗"
+    echo "║                                                      ║"
+    echo "║              🎉 BUILD SUCCESS! 🎉                   ║"
+    echo "║                                                      ║"
+    echo "║       Your Crypto Sound Miner is Ready! 🎵          ║"
+    echo "║                                                      ║"
+    echo "╚══════════════════════════════════════════════════════╝"
     echo -e "\033[0m"
     
     echo -e "\033[1;36m📁 Output directory: dist/\033[0m"
@@ -341,20 +337,18 @@ serve() {
     log "🌐 Starting real HTTP server..."
     
     echo -e "\033[1;35m"
-    cat << 'EOF'
-   ┌─────────────────────────────────────────────────────┐
-   │                                                     │
-   │        🌐 CRYPTO SOUND MINER SERVER 🌐            │
-   │                                                     │
-   │           ♪♫♪ Ready to Rock & Mine! ♪♫♪            │
-   │                                                     │
-   └─────────────────────────────────────────────────────┘
-EOF
+    echo "╔══════════════════════════════════════════════════════╗"
+    echo "║                                                      ║"
+    echo "║       🌐 CRYPTO SOUND MINER SERVER 🌐              ║"
+    echo "║                                                      ║"
+    echo "║          ♪♫♪ Ready to Rock & Mine! ♪♫♪             ║"
+    echo "║                                                      ║"
+    echo "╚══════════════════════════════════════════════════════╝"
     echo -e "\033[0m"
     
-    echo -e "\033[1;36m┌─────────────────────────────────────┐\033[0m"
-    echo -e "\033[1;36m│           STARTING SERVER           │\033[0m"
-    echo -e "\033[1;36m└─────────────────────────────────────┘\033[0m"
+    echo -e "\033[1;36m╔═══════════════════════════════════════╗\033[0m"
+    echo -e "\033[1;36m║           STARTING SERVER             ║\033[0m"
+    echo -e "\033[1;36m╚═══════════════════════════════════════╝\033[0m"
     
     # Build first if dist doesn't exist
     if [ ! -d "dist" ]; then
