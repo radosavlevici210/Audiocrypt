@@ -2,52 +2,111 @@
 #!/bin/bash
 
 # Build Agent for Crypto Sound Miner
-# Simple shell script that works without Node.js or Python
+# Enhanced version with real HTTP server and build visualization
 
 log() {
     echo "[BuildAgent] $(date '+%Y-%m-%d %H:%M:%S') - $1"
 }
 
+progress_bar() {
+    local current=$1
+    local total=$2
+    local width=50
+    local percentage=$((current * 100 / total))
+    local completed=$((current * width / total))
+    
+    printf "\r["
+    printf "%*s" $completed | tr ' ' '='
+    printf "%*s" $((width - completed)) | tr ' ' '-'
+    printf "] %d%% (%d/%d)" $percentage $current $total
+}
+
 check_dependencies() {
-    log "Checking project dependencies..."
+    log "🔍 Checking project dependencies..."
+    echo "┌─────────────────────────────────────┐"
+    echo "│         DEPENDENCY CHECK            │"
+    echo "└─────────────────────────────────────┘"
     
-    if [ ! -f "index.html" ]; then
-        log "ERROR: Required file missing: index.html"
-        exit 1
-    fi
+    local files=("index.html")
+    local total=${#files[@]}
+    local current=0
     
-    log "Dependencies check passed"
+    for file in "${files[@]}"; do
+        current=$((current + 1))
+        progress_bar $current $total
+        sleep 0.5
+        
+        if [ ! -f "$file" ]; then
+            echo -e "\n❌ ERROR: Required file missing: $file"
+            exit 1
+        fi
+    done
+    
+    echo -e "\n✅ Dependencies check passed"
+    echo ""
 }
 
 clean_build() {
-    log "Cleaning previous build..."
+    log "🧹 Cleaning previous build..."
+    echo "┌─────────────────────────────────────┐"
+    echo "│           CLEAN BUILD               │"
+    echo "└─────────────────────────────────────┘"
     
     if [ -d "dist" ]; then
         rm -rf dist
+        echo "🗑️  Removed old dist directory"
     fi
     
     mkdir -p dist
+    echo "📁 Created new dist directory"
     log "Build directory cleaned"
+    echo ""
 }
 
 copy_assets() {
-    log "Copying assets..."
+    log "📋 Copying assets..."
+    echo "┌─────────────────────────────────────┐"
+    echo "│           COPY ASSETS               │"
+    echo "└─────────────────────────────────────┘"
+    
+    # Count files to copy
+    local files=()
+    files+=("index.html")
+    for file in *.mp3 *.txt *.zip; do
+        if [ -f "$file" ]; then
+            files+=("$file")
+        fi
+    done
+    
+    local total=${#files[@]}
+    local current=0
     
     # Copy HTML files
+    current=$((current + 1))
+    progress_bar $current $total
     cp index.html dist/
-    log "Copied index.html"
+    sleep 0.3
+    echo -e "\n📄 Copied index.html"
     
     # Copy static assets
     for file in *.mp3 *.txt *.zip; do
         if [ -f "$file" ]; then
+            current=$((current + 1))
+            progress_bar $current $total
             cp "$file" dist/
-            log "Copied asset: $file"
+            sleep 0.2
+            echo -e "\n📎 Copied asset: $file"
         fi
     done
+    
+    echo ""
 }
 
 optimize_html() {
-    log "Optimizing HTML..."
+    log "⚡ Optimizing HTML..."
+    echo "┌─────────────────────────────────────┐"
+    echo "│          HTML OPTIMIZATION          │"
+    echo "└─────────────────────────────────────┘"
     
     if [ -f "dist/index.html" ]; then
         # Add meta tags for optimization
@@ -57,25 +116,36 @@ optimize_html() {
   <meta name="description" content="Crypto Sound Miner - Generate Music and Mine Cryptocurrency">\
   <meta name="keywords" content="crypto, mining, music, sound, generator">' dist/index.html
         
+        echo "🔧 Added SEO meta tags"
+        echo "🎨 Optimized viewport settings"
         log "HTML optimization complete"
     fi
+    echo ""
 }
 
 validate_build() {
-    log "Validating build..."
+    log "✅ Validating build..."
+    echo "┌─────────────────────────────────────┐"
+    echo "│          BUILD VALIDATION           │"
+    echo "└─────────────────────────────────────┘"
     
     if [ ! -f "dist/index.html" ]; then
-        log "ERROR: Build validation failed: index.html not found"
+        echo "❌ ERROR: Build validation failed: index.html not found"
         exit 1
     fi
     
     file_count=$(ls -1 dist/ | wc -l)
-    log "Build contains $file_count files"
+    echo "📊 Build contains $file_count files:"
+    ls -la dist/ | grep -v "^total" | grep -v "^d" | awk '{print "   📄 " $9}'
+    
+    echo "✅ Build validation passed"
     log "Build validation passed"
+    echo ""
 }
 
 build() {
-    log "Starting build process..."
+    echo "🚀 STARTING BUILD PROCESS"
+    echo "════════════════════════════════════════════════════════════"
     
     check_dependencies
     clean_build
@@ -83,34 +153,101 @@ build() {
     optimize_html
     validate_build
     
-    log "Build completed successfully!"
-    log "Output directory: dist/"
+    echo "🎉 BUILD COMPLETED SUCCESSFULLY!"
+    echo "📁 Output directory: dist/"
+    echo "════════════════════════════════════════════════════════════"
+}
+
+create_server_script() {
+    cat > dist/server.py << 'EOF'
+#!/usr/bin/env python3
+import http.server
+import socketserver
+import os
+import mimetypes
+
+class CustomHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, directory=os.getcwd(), **kwargs)
+    
+    def end_headers(self):
+        self.send_header('Cross-Origin-Embedder-Policy', 'require-corp')
+        self.send_header('Cross-Origin-Opener-Policy', 'same-origin')
+        super().end_headers()
+    
+    def guess_type(self, path):
+        mimetype, encoding = mimetypes.guess_type(path)
+        if path.endswith('.mp3'):
+            return 'audio/mpeg'
+        return mimetype
+
+PORT = 5000
+Handler = CustomHTTPRequestHandler
+
+print(f"🌐 Starting Crypto Sound Miner server on port {PORT}")
+print(f"🔗 Access your app at: http://0.0.0.0:{PORT}")
+print("🎵 Ready to mine crypto with music!")
+print("-" * 50)
+
+try:
+    with socketserver.TCPServer(("0.0.0.0", PORT), Handler) as httpd:
+        httpd.serve_forever()
+except KeyboardInterrupt:
+    print("\n🛑 Server stopped by user")
+except Exception as e:
+    print(f"❌ Server error: {e}")
+EOF
 }
 
 serve() {
-    log "Starting simple file server..."
+    log "🌐 Starting real HTTP server..."
+    echo "┌─────────────────────────────────────┐"
+    echo "│           STARTING SERVER           │"
+    echo "└─────────────────────────────────────┘"
     
-    # Check if we have a simple HTTP server available
-    if command -v busybox >/dev/null 2>&1; then
+    # Build first if dist doesn't exist
+    if [ ! -d "dist" ]; then
+        echo "📁 No dist directory found, building first..."
+        build
+    fi
+    
+    # Create Python server script
+    create_server_script
+    chmod +x dist/server.py
+    
+    # Try different server options
+    if command -v python3 >/dev/null 2>&1; then
+        log "Using Python3 HTTP server on port 5000"
+        echo "🐍 Using Python3 server"
+        cd dist
+        python3 server.py
+    elif command -v python >/dev/null 2>&1; then
+        log "Using Python HTTP server on port 5000"
+        echo "🐍 Using Python server"
+        cd dist
+        python -m http.server 5000 --bind 0.0.0.0
+    elif command -v busybox >/dev/null 2>&1; then
         log "Using busybox httpd server on port 5000"
-        cd dist 2>/dev/null || cd .
+        echo "📦 Using Busybox server"
+        cd dist
         busybox httpd -f -p 5000
-    elif command -v nc >/dev/null 2>&1; then
-        log "Using netcat server on port 5000"
-        cd dist 2>/dev/null || cd .
-        while true; do
-            echo -e "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n$(cat index.html)" | nc -l -p 5000
-        done
     else
-        log "Starting basic server simulation..."
-        log "Server would run at http://0.0.0.0:5000"
-        log "Files available in $(pwd)"
-        ls -la
+        log "No suitable HTTP server found, using netcat fallback"
+        echo "🔧 Using netcat fallback server"
+        cd dist 2>/dev/null || cd .
         
-        # Keep the process running
         while true; do
-            sleep 10
-            log "Server running... (simulation mode)"
+            (
+                echo "HTTP/1.1 200 OK"
+                echo "Content-Type: text/html"
+                echo "Access-Control-Allow-Origin: *"
+                echo ""
+                if [ -f "index.html" ]; then
+                    cat index.html
+                else
+                    echo "<h1>Crypto Sound Miner</h1><p>Server running at port 5000</p>"
+                fi
+            ) | nc -l -p 5000 -q 1
         done
     fi
 }
@@ -127,9 +264,10 @@ case "$1" in
         serve
         ;;
     *)
+        echo "🎵 Crypto Sound Miner Build Agent"
         echo "Usage: $0 [build|serve|dev]"
-        echo "  build - Build the project"
-        echo "  serve - Start development server"
+        echo "  build - Build the project with visualization"
+        echo "  serve - Start real HTTP server"
         echo "  dev   - Start development server (alias for serve)"
         ;;
 esac
